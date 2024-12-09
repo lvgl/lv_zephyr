@@ -1,11 +1,11 @@
 {
-    "name": "NuttX MIMXRT1170-EVK",
+    "name": "Zephyr MIMXRT1170-EVK",
     "maintainer": "Zephyr",
     "hostOperatingsystem": [
         "Linux"
     ],
     "environment": [
-        "cmake",
+        "make",
         "Linux"
     ],
     "hardware": {
@@ -29,12 +29,27 @@
     "shortDescription": "Zephyr RTOS project for MIMXRT1170-EVK with LVGL",
     "urlToClone": "https://github.com/uLipe/lv_zephyr.git",
     "logos": [
-        "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nuttx/logo.svg"
+        "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/zephyr/logo.svg"
     ],
     "branches": [
         "release/v9.2"
     ],
     "getStartedInstructions": "1. Install Zephyr on your host machine: `https://docs.zephyrproject.org/latest/develop/getting_started/index.html`.\n2. Run `west build -p -bmimxrt1170_evk@B/mimxrt1176/cm7 --shield rk055hdmipi4ma0 lvgl_zephyr`.\n3.  Run `west flash` for flashing.\n4. Run `west debug` for debugging.",
     "settings": [
+        {
+            "type": "dropdown",
+            "label": "Show performance monitor",
+            "options": [
+                {
+                    "name": "Yes",
+                    "value": "1",
+                    "default": "true"
+                },
+                {
+                    "name": "No",
+                    "value": "0"
+                }
+            ]
+        }
     ]
 }

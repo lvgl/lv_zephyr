@@ -2,10 +2,12 @@
     "name": "Zephyr MIMXRT1170-EVKB",
     "maintainer": "Zephyr",
     "hostOperatingsystem": [
-        "Linux"
+        "Windows",
+        "Linux",
+        "MacOS"
     ],
     "environment": [
-        "make",
+        "cmake",
         "Linux"
     ],
     "hardware": {

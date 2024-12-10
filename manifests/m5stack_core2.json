@@ -2,10 +2,12 @@
     "name": "Zephyr M5Stack Core 2",
     "maintainer": "Zephyr",
     "hostOperatingsystem": [
-        "Linux"
-    ],
+        "Windows",
+        "Linux",
+        "MacOS"
+   ],
     "environment": [
-        "make",
+        "cmake",
         "Linux"
     ],
     "hardware": {

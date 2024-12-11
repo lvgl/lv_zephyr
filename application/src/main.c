@@ -28,7 +28,6 @@ int main(void)
 	/* Place your UI demo here, or try other demos */
 	lv_demo_widgets();
 
-	lv_timer_handler();
 	display_blanking_off(display_dev);
 #ifdef CONFIG_LV_Z_MEM_POOL_SYS_HEAP
 	lvgl_print_heap_info(false);

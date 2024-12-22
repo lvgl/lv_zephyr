@@ -1,8 +1,8 @@
 # Zephyr base project for the LVGL project creator
 
-This repository is used along with LGVL project creator to
-help user to quick setup a Zephyr RTOS application that uses
-LVGL on top of the Zephyr Display subsystem.
+This repository is used along with [LGVL project creator](https://lvgl.io/tools/project-creator) to
+help user to quick setup a [Zephyr RTOS](https://zephyrproject.org/) application that uses
+[LVGL](https://lvgl.io/) on top of the Zephyr Display subsystem.
 
 ## Why this is needed?
 
@@ -13,6 +13,6 @@ creator helps users with that.
 
 ## How to use it:
 
-* Before use the project creator make sure you have zephyr installed on the current folder;
+* Before use the project creator make sure you have [Zephyr installed](https://docs.zephyrproject.org/latest/develop/getting_started/index.htm) on the current folder;
 * After that launch the project creator;
 * After the creation just build the application as regular Zephyr project using `west build`;

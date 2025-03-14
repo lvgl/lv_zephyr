@@ -19,7 +19,7 @@
             "Flash": "16 MB",
             "GPU": "PXP",
             "Resolution": "800x480",
-            "Display Size": "4.3\u201d",
+            "Display Size": "4.3”",
             "Interface": "MIPI DSI",
             "Color Depth": "24-bit",
             "Technology": "LCD",
@@ -33,6 +33,7 @@
     "logos": [
         "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/zephyr/logo.svg"
     ],
+    "image": "https://raw.githubusercontent.com/lvgl/lv_zephyr/main/board_images/NXP-MIMXRT1170-EVK.webp",
     "branches": [
         "release/v9.2"
     ],

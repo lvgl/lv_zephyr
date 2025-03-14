@@ -5,7 +5,7 @@
         "Windows",
         "Linux",
         "MacOS"
-   ],
+    ],
     "environment": [
         "cmake",
         "Linux"
@@ -19,7 +19,7 @@
             "Flash": "16 MB",
             "GPU": "None",
             "Resolution": "320x240",
-            "Display Size": "2.1\u201d",
+            "Display Size": "2.1”",
             "Interface": "Parallell 8080 16bit",
             "Color Depth": "14-bit",
             "Technology": "LCD",
@@ -33,6 +33,7 @@
     "logos": [
         "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/zephyr/logo.svg"
     ],
+    "image": "https://raw.githubusercontent.com/lvgl/lv_zephyr/main/board_images/M5Stack-Core2.webp",
     "branches": [
         "release/v9.2"
     ],

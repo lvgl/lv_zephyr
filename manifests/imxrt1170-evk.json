@@ -7,7 +7,7 @@
         "MacOS"
     ],
     "environment": [
-        "cmake",
+        "CMake",
         "Linux"
     ],
     "hardware": {

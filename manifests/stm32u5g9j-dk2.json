@@ -33,6 +33,7 @@
     "logos": [
         "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/zephyr/logo.svg"
     ],
+    "image": "https://raw.githubusercontent.com/lvgl/lv_zephyr/main/board_images/stm32u5g9j_dk2.webp",
     "branches": [
         "release/v9.2",
         "release/v9.3",

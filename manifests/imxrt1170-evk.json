@@ -15,15 +15,15 @@
         "manufacturer": "NXP",
         "specs": {
             "MCU": "i.MX RT1176xxA",
-            "RAM": "256 MB SRAM",
+            "RAM": "1 MB internal, 32 MB external",
             "Flash": "16 MB",
             "GPU": "PXP",
             "Resolution": "800x480",
-            "Display Size": "4.3”",
+            "Display Size": "7”",
             "Interface": "MIPI DSI",
             "Color Depth": "24-bit",
-            "Technology": "LCD",
-            "DPI": "128 px/inch",
+            "Technology": "IPS",
+            "DPI": "133 px/inch",
             "Touch Pad": "Capacitive"
         }
     },

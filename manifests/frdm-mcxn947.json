@@ -5,7 +5,7 @@
         "Windows",
         "Linux",
         "MacOS"
-   ],
+    ],
     "environment": [
         "cmake",
         "Linux"
@@ -39,7 +39,7 @@
         "release/v9.3",
         "release/v9.4"
     ],
-    "getStartedInstructions": "1. Install Zephyr on your host machine: `https://docs.zephyrproject.org/latest/develop/getting_started/index.html`.\n2. Run `west build -pauto -bfrdm_mcxn947 application --shield lcd_par_s035_spi`.\n3.  Run `west flash` for flashing.\n4. Run `west debug` for debugging.",
+    "getStartedInstructions": "1. Install the Zephyr prerequisites, west and the Zephyr SDK: `https://docs.zephyrproject.org/latest/develop/getting_started/index.html`.\n2. From the folder that contains this project run `west init -l lv_zephyr` and `west update`.\n3. Build: `west build -p -b frdm_mcxn947/mcxn947/cpu0 lv_zephyr/application --shield lcd_par_s035_8080`.\n4. Run `west flash` for flashing and `west debug` for debugging.",
     "settings": [
         {
             "type": "dropdown",

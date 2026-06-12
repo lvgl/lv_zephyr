@@ -3,14 +3,15 @@
 #
 # West manifest for the LVGL Zephyr starter project.
 #
-# This repository is both the west manifest repository and the application:
-# cloning it and running `west init -l` + `west update` fetches Zephyr and
-# every module needed to build. Everything auto-downloaded is kept under
-# deps/, cleanly separated from the code you edit:
+# This file lives in the manifest/ subdirectory on purpose: running
+# `west init -l manifest` from the repository root makes the repository
+# itself the west workspace, so everything west downloads stays inside
+# the repository (git-ignored), cleanly separated from the code you edit:
 #
-#   workspace/
-#   ├── lv_zephyr/        # this repository (the application) — your code
-#   └── deps/             # auto-downloaded by west — don't edit
+#   lv_zephyr/            # your clone — the whole workspace lives in here
+#   ├── src/, boards/, prj.conf, CMakeLists.txt   # your application
+#   ├── manifest/west.yml # this file
+#   └── deps/             # auto-downloaded by west — git-ignored
 #       ├── zephyr/       # Zephyr RTOS
 #       ├── modules/      # LVGL and vendor HALs
 #       └── bootloader/   # MCUboot (used by ESP32 targets)

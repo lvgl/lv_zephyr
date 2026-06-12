@@ -1,5 +1,13 @@
+# West workspace state and downloaded dependencies (see manifest/west.yml)
+.west/
+deps/
+
+# Build output
 build/
 build_*/
+build-*/
+
+# IDE / tooling
 .vscode/
 .idea/
 __pycache__/

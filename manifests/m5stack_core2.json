@@ -37,7 +37,7 @@
     "branches": [
         "release/v9.2"
     ],
-    "getStartedInstructions": "1. Install the Zephyr prerequisites, west and the Zephyr SDK: `https://docs.zephyrproject.org/latest/develop/getting_started/index.html`.\n2. From the folder that contains this project run `west init -l lv_zephyr` and `west update`.\n3. Enter the project folder: `cd lv_zephyr`.\n4. Run `west blobs fetch hal_espressif` (ESP32 binary blobs).\n5. Build: `west build -p -b m5stack_core2/esp32/procpu`.\n6. Run `west flash` for flashing and `west debug` for debugging.",
+    "getStartedInstructions": "1. Install the Zephyr prerequisites, west and the Zephyr SDK: `https://docs.zephyrproject.org/latest/develop/getting_started/index.html`.\n2. Inside the project folder run `west init -l manifest` and `west update`.\n3. Run `west blobs fetch hal_espressif` (ESP32 binary blobs).\n4. Build: `west build -p -b m5stack_core2/esp32/procpu`.\n5. Run `west flash` for flashing and `west debug` for debugging.",
     "settings": [
         {
             "type": "dropdown",

@@ -57,6 +57,11 @@ clicks act as touch input, and the Zephyr shell is available in the terminal.
 | [MIMXRT1170-EVK](https://www.nxp.com/design/design-center/development-boards-and-designs/MIMXRT1170-EVK) | `west build -p -b mimxrt1170_evk@B/mimxrt1176/cm7 lv_zephyr/application --shield rk055hdmipi4ma0` |
 | [M5Stack Core2](https://shop.m5stack.com/products/m5stack-core2-esp32-iot-development-kit-v1-1) | `west blobs fetch hal_espressif`, then `west build -p -b m5stack_core2/esp32/procpu lv_zephyr/application` |
 
+> [!TIP]
+> ESP32 builds (M5Stack Core2) additionally need the `esptool` Python package
+> on your PATH; install it together with the rest of Zephyr's Python
+> dependencies with `west packages pip --install`.
+
 Then flash and (optionally) debug:
 
 ```sh

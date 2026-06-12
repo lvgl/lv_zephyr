@@ -1,0 +1,11 @@
+/*
+ * Copyright (c) 2026 LVGL
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+&sdl_dc {
+	compatible = "zephyr,sdl-dc";
+	height = <272>;
+	width = <480>;
+};

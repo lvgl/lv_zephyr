@@ -1,0 +1,40 @@
+# Copyright (c) 2026 LVGL
+# SPDX-License-Identifier: Apache-2.0
+#
+# West manifest for the LVGL Zephyr starter project.
+#
+# This repository is a Zephyr "workspace application": cloning it and running
+# `west init -l` + `west update` fetches Zephyr and every module needed to
+# build the application for the supported boards. See README.md for the
+# step-by-step instructions.
+
+manifest:
+  version: 0.13
+
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+
+  projects:
+    - name: zephyr
+      remote: zephyrproject-rtos
+      revision: v4.4.0
+      import:
+        # Keep Zephyr and all modules grouped under deps/ in the workspace.
+        path-prefix: deps
+        # Only fetch the modules needed by the supported boards. Add more
+        # entries here if you target a board whose HAL is not in this list
+        # (module names are listed in deps/zephyr/west.yml).
+        name-allowlist:
+          - lvgl
+          - cmsis            # required by most Arm-based HALs
+          - cmsis_6
+          - hal_espressif    # M5Stack Core2 (ESP32)
+          - hal_nxp          # FRDM-MCXN947, MIMXRT1170-EVK
+          - hal_renesas      # EK-RA8D1
+          - hal_stm32        # STM32U5G9J-DK2
+          - mbedtls          # required by MCUboot (ESP32 builds)
+          - mcuboot          # ESP32 builds boot via MCUboot (sysbuild)
+
+  self:
+    path: lv_zephyr

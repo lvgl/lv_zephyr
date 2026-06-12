@@ -1,0 +1,89 @@
+# Copyright (c) 2026 LVGL
+# SPDX-License-Identifier: Apache-2.0
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (${{ matrix.board }})
+    runs-on: ubuntu-24.04
+    container: ghcr.io/zephyrproject-rtos/ci:v0.29.1
+    env:
+      CMAKE_PREFIX_PATH: /opt/toolchains
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - board: native_sim/native/64
+          - board: stm32u5g9j_dk2
+          - board: ek_ra8d1
+            extra_args: --shield rtkmipilcdb00000be
+          - board: frdm_mcxn947/mcxn947/cpu0
+            extra_args: --shield lcd_par_s035_8080
+          - board: mimxrt1170_evk@B/mimxrt1176/cm7
+            extra_args: --shield rk055hdmipi4ma0
+          - board: m5stack_core2/esp32/procpu
+            blobs: hal_espressif
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize west workspace
+        run: |
+          west init -l manifest
+          west update -o=--depth=1 -n
+
+      - name: Install esptool and fetch blobs
+        if: matrix.blobs
+        run: |
+          PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install "esptool>=5.0.2"
+          west blobs fetch ${{ matrix.blobs }}
+
+      - name: Build
+        run: west build -p -b ${{ matrix.board }} ${{ matrix.extra_args }}
+
+  screenshot-test:
+    name: Screenshot test (native_sim)
+    runs-on: ubuntu-24.04
+    container: ghcr.io/zephyrproject-rtos/ci:v0.29.1
+    env:
+      CMAKE_PREFIX_PATH: /opt/toolchains
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize west workspace
+        run: |
+          west init -l manifest
+          west update -o=--depth=1 -n
+
+      - name: Build with screenshot capture enabled
+        run: >
+          west build -p -b native_sim/native/64 --
+          -DEXTRA_CONF_FILE=tests/screenshot.conf
+
+      - name: Run and capture screenshot
+        run: >
+          SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software
+          timeout 60 ./build/zephyr/zephyr.exe
+
+      - name: Compare against reference
+        run: >
+          python3 tests/compare_screenshots.py
+          tests/screenshot-reference.bmp screenshot.bmp screenshot-diff.bmp
+
+      - name: Upload screenshot artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot
+          path: |
+            screenshot.bmp
+            screenshot-diff.bmp
+          if-no-files-found: ignore

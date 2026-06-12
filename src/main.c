@@ -12,6 +12,10 @@
 #include <lv_demos.h>
 #include <stdio.h>
 
+#ifdef CONFIG_APP_SCREENSHOT
+#include "screenshot.h"
+#endif
+
 #define LOG_LEVEL CONFIG_LOG_DEFAULT_LEVEL
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(app);
@@ -65,6 +69,9 @@ int main(void)
 
 		lvgl_lock();
 		sleep_ms = lv_timer_handler();
+#ifdef CONFIG_APP_SCREENSHOT
+		app_screenshot_poll();
+#endif
 		lvgl_unlock();
 
 		k_msleep(MIN(sleep_ms, INT32_MAX));

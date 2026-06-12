@@ -1,0 +1,15 @@
+# Copyright (c) 2026 LVGL
+# SPDX-License-Identifier: Apache-2.0
+
+mainmenu "LVGL Zephyr starter application"
+
+config APP_SCREENSHOT
+	bool "Take a screenshot once the UI settles, then exit"
+	depends on ARCH_POSIX
+	help
+	  Render the active screen with lv_snapshot once all LVGL animations
+	  have finished, write it to screenshot.bmp in the current working
+	  directory and terminate the process. Used by CI for image-comparison
+	  testing on native_sim (see tests/screenshot.conf).
+
+source "Kconfig.zephyr"

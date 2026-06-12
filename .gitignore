@@ -7,6 +7,11 @@ build/
 build_*/
 build-*/
 
+# Screenshot test output (the reference lives in tests/)
+/screenshot.bmp
+/screenshot-diff.bmp
+/diff.bmp
+
 # IDE / tooling
 .vscode/
 .idea/

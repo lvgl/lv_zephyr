@@ -1,5 +1,7 @@
 # LVGL on Zephyr RTOS — starter project
 
+[![CI](https://github.com/lvgl/lv_zephyr/actions/workflows/ci.yml/badge.svg)](https://github.com/lvgl/lv_zephyr/actions/workflows/ci.yml)
+
 Get an [LVGL](https://lvgl.io/) application running on [Zephyr RTOS](https://zephyrproject.org/)
 in minutes — on your PC (no hardware needed) or on one of the supported development boards.
 
@@ -118,28 +120,54 @@ drop the exported code into `src/`.
 
 ### Choosing the LVGL version
 
-LVGL is fetched directly from [lvgl/lvgl](https://github.com/lvgl/lvgl) — it
-is **not** tied to the version bundled with Zephyr. To use a different
-version, set the `revision` of the `lvgl` project in
-[manifest/west.yml](manifest/west.yml) to any tag, branch or commit SHA:
+LVGL is checked out as a standalone dependency straight from
+[lvgl/lvgl](https://github.com/lvgl/lvgl), not through Zephyr's manifest.
+By default it pins the exact commit the bundled Zephyr release ships with
+(v9.5.0 for Zephyr v4.4.0), so out of the box you get the Zephyr-validated
+version — but the choice is yours: set the `revision` of the `lvgl` project
+in [manifest/west.yml](manifest/west.yml) to any tag, branch or commit SHA:
 
 ```yaml
 - name: lvgl
   url: https://github.com/lvgl/lvgl
-  revision: v9.5.0        # ← any lvgl/lvgl tag, branch or commit
+  revision: 85aa60d18b3d5e5588d7b247abf90198f07c8a63  # == v9.5.0, bundled with Zephyr v4.4.0
+  # revision: v9.4.0     # …or a release tag of your choice
+  # revision: master     # …or the development branch
   path: deps/modules/lib/gui/lvgl
 ```
 
 then run `west update`. Keep in mind that Zephyr's LVGL glue code
 (`deps/zephyr/modules/lvgl`) is written against the LVGL version that Zephyr
 release was validated with, so versions far away from the default may need
-glue adjustments.
+glue adjustments. When bumping the Zephyr revision, update the default LVGL
+pin to match the `lvgl` entry in `deps/zephyr/west.yml`.
 
 ### Updating Zephyr
 
 The Zephyr release is pinned by the `revision` of the `zephyr` project in
 [manifest/west.yml](manifest/west.yml). To upgrade, bump the revision and run
 `west update`.
+
+## Testing
+
+CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)) builds the
+application for the simulator and every supported board on each pull
+request, and runs a screenshot test: the app is built for native_sim with
+[tests/screenshot.conf](tests/screenshot.conf), run headless, and the
+rendered UI is captured with LVGL's snapshot feature and compared against
+[tests/screenshot-reference.bmp](tests/screenshot-reference.bmp) (small
+tolerance for anti-aliasing differences). To run it locally:
+
+```sh
+west build -p -b native_sim/native/64 -- -DEXTRA_CONF_FILE=tests/screenshot.conf
+SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software ./build/zephyr/zephyr.exe
+python3 tests/compare_screenshots.py tests/screenshot-reference.bmp screenshot.bmp diff.bmp
+```
+
+After an intentional UI change, regenerate the reference by replacing
+`tests/screenshot-reference.bmp` with the new `screenshot.bmp` (CI also
+uploads the captured screenshot and a diff visualization as artifacts on
+every run).
 
 ## Using the LVGL Project Creator
 

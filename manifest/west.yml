@@ -26,17 +26,27 @@ manifest:
       url-base: https://github.com/zephyrproject-rtos
 
   projects:
-    # LVGL — fetched directly from the upstream LVGL repository, overriding
-    # the version bundled with Zephyr. Set `revision` to any tag (v9.5.0),
-    # branch (master) or commit SHA from https://github.com/lvgl/lvgl to
-    # pick the LVGL version you want.
+    # LVGL — checked out as a standalone dependency directly from the
+    # upstream LVGL repository instead of through Zephyr's manifest, so the
+    # version is yours to choose.
+    #
+    # By default `revision` points to the exact commit the pinned Zephyr
+    # release bundles (v9.5.0 for Zephyr v4.4.0 — see the `lvgl` entry in
+    # deps/zephyr/west.yml; keep the two in sync when bumping Zephyr).
+    #
+    # To use your own LVGL version instead, replace `revision` with any tag,
+    # branch or commit SHA from https://github.com/lvgl/lvgl, e.g.:
+    #
+    #   revision: v9.4.0     # a release tag
+    #   revision: master     # the development branch
+    #   revision: 263ae5e13dec1e525109aed556cec1bbdfdecd5a   # an exact commit
     #
     # Note: Zephyr's LVGL glue code (deps/zephyr/modules/lvgl) is written
-    # against the LVGL version this Zephyr release was validated with, so
-    # versions far away from the default may need glue adjustments.
+    # against the bundled LVGL version, so versions far away from the
+    # default may need glue adjustments.
     - name: lvgl
       url: https://github.com/lvgl/lvgl
-      revision: v9.5.0
+      revision: 85aa60d18b3d5e5588d7b247abf90198f07c8a63  # == v9.5.0, bundled with Zephyr v4.4.0
       path: deps/modules/lib/gui/lvgl
 
     - name: zephyr

@@ -116,12 +116,30 @@ drop the exported code into `src/`.
    settings.
 3. Build with `west build -p -b <board>`.
 
-### Updating Zephyr or LVGL
+### Choosing the LVGL version
+
+LVGL is fetched directly from [lvgl/lvgl](https://github.com/lvgl/lvgl) — it
+is **not** tied to the version bundled with Zephyr. To use a different
+version, set the `revision` of the `lvgl` project in
+[manifest/west.yml](manifest/west.yml) to any tag, branch or commit SHA:
+
+```yaml
+- name: lvgl
+  url: https://github.com/lvgl/lvgl
+  revision: v9.5.0        # ← any lvgl/lvgl tag, branch or commit
+  path: deps/modules/lib/gui/lvgl
+```
+
+then run `west update`. Keep in mind that Zephyr's LVGL glue code
+(`deps/zephyr/modules/lvgl`) is written against the LVGL version that Zephyr
+release was validated with, so versions far away from the default may need
+glue adjustments.
+
+### Updating Zephyr
 
 The Zephyr release is pinned by the `revision` of the `zephyr` project in
-[manifest/west.yml](manifest/west.yml); the LVGL version is the one bundled
-with that Zephyr release as the `lvgl` module. To upgrade, bump the revision
-and run `west update`.
+[manifest/west.yml](manifest/west.yml). To upgrade, bump the revision and run
+`west update`.
 
 ## Using the LVGL Project Creator
 

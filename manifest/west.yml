@@ -26,6 +26,19 @@ manifest:
       url-base: https://github.com/zephyrproject-rtos
 
   projects:
+    # LVGL — fetched directly from the upstream LVGL repository, overriding
+    # the version bundled with Zephyr. Set `revision` to any tag (v9.5.0),
+    # branch (master) or commit SHA from https://github.com/lvgl/lvgl to
+    # pick the LVGL version you want.
+    #
+    # Note: Zephyr's LVGL glue code (deps/zephyr/modules/lvgl) is written
+    # against the LVGL version this Zephyr release was validated with, so
+    # versions far away from the default may need glue adjustments.
+    - name: lvgl
+      url: https://github.com/lvgl/lvgl
+      revision: v9.5.0
+      path: deps/modules/lib/gui/lvgl
+
     - name: zephyr
       remote: zephyrproject-rtos
       revision: v4.4.0
@@ -36,7 +49,6 @@ manifest:
         # entries here if you target a board whose HAL is not in this list
         # (module names are listed in deps/zephyr/west.yml).
         name-allowlist:
-          - lvgl
           - cmsis            # required by most Arm-based HALs
           - cmsis_6
           - hal_espressif    # M5Stack Core2 (ESP32)

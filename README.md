@@ -31,6 +31,20 @@ git clone https://github.com/lvgl/lv_zephyr.git
 # Initialize the west workspace and download Zephyr + modules
 west init -l lv_zephyr
 west update
+
+# Build from inside the application repository
+cd lv_zephyr
+```
+
+After `west update` the workspace looks like this — the application and Zephyr
+side by side:
+
+```
+lvgl-zephyr-workspace/
+├── lv_zephyr/    # this repository: your application + west manifest
+├── zephyr/       # Zephyr RTOS
+├── modules/      # LVGL and vendor HALs
+└── bootloader/   # MCUboot (used by ESP32 targets)
 ```
 
 > [!NOTE]
@@ -41,7 +55,7 @@ west update
 ### Run on your PC (simulator)
 
 ```sh
-west build -b native_sim/native/64 lv_zephyr/application -t run
+west build -b native_sim/native/64 -t run
 ```
 
 A window opens showing the LVGL widgets demo:
@@ -49,13 +63,15 @@ clicks act as touch input, and the Zephyr shell is available in the terminal.
 
 ### Run on a development board
 
+Run these from inside the `lv_zephyr` directory:
+
 | Board | Build command |
 |-------|---------------|
-| [STM32U5G9J-DK2](https://www.st.com/en/evaluation-tools/stm32u5g9j-dk2.html) | `west build -p -b stm32u5g9j_dk2 lv_zephyr/application` |
-| [EK-RA8D1](https://www.renesas.com/en/products/microcontrollers-microprocessors/ra-cortex-m-mcus/ek-ra8d1-evaluation-kit-ra8d1-mcu-group) | `west build -p -b ek_ra8d1 lv_zephyr/application --shield rtkmipilcdb00000be` |
-| [FRDM-MCXN947](https://www.nxp.com/design/design-center/development-boards-and-designs/FRDM-MCXN947) | `west build -p -b frdm_mcxn947/mcxn947/cpu0 lv_zephyr/application --shield lcd_par_s035_8080` |
-| [MIMXRT1170-EVK](https://www.nxp.com/design/design-center/development-boards-and-designs/MIMXRT1170-EVK) | `west build -p -b mimxrt1170_evk@B/mimxrt1176/cm7 lv_zephyr/application --shield rk055hdmipi4ma0` |
-| [M5Stack Core2](https://shop.m5stack.com/products/m5stack-core2-esp32-iot-development-kit-v1-1) | `west blobs fetch hal_espressif`, then `west build -p -b m5stack_core2/esp32/procpu lv_zephyr/application` |
+| [STM32U5G9J-DK2](https://www.st.com/en/evaluation-tools/stm32u5g9j-dk2.html) | `west build -p -b stm32u5g9j_dk2` |
+| [EK-RA8D1](https://www.renesas.com/en/products/microcontrollers-microprocessors/ra-cortex-m-mcus/ek-ra8d1-evaluation-kit-ra8d1-mcu-group) | `west build -p -b ek_ra8d1 --shield rtkmipilcdb00000be` |
+| [FRDM-MCXN947](https://www.nxp.com/design/design-center/development-boards-and-designs/FRDM-MCXN947) | `west build -p -b frdm_mcxn947/mcxn947/cpu0 --shield lcd_par_s035_8080` |
+| [MIMXRT1170-EVK](https://www.nxp.com/design/design-center/development-boards-and-designs/MIMXRT1170-EVK) | `west build -p -b mimxrt1170_evk@B/mimxrt1176/cm7 --shield rk055hdmipi4ma0` |
+| [M5Stack Core2](https://shop.m5stack.com/products/m5stack-core2-esp32-iot-development-kit-v1-1) | `west blobs fetch hal_espressif`, then `west build -p -b m5stack_core2/esp32/procpu` |
 
 > [!TIP]
 > ESP32 builds (M5Stack Core2) additionally need the `esptool` Python package
@@ -74,20 +90,21 @@ Any other Zephyr board with a display works too — see
 
 ## Make it your own
 
-The application lives in [application/](application/):
+The repository is the application:
 
 ```
-application/
+lv_zephyr/
+├── west.yml         # West manifest: pins Zephyr and the modules to fetch
 ├── CMakeLists.txt   # Application build, pulls in the LVGL demo sources
 ├── prj.conf         # Zephyr + LVGL configuration (Kconfig)
 ├── boards/          # Per-board configuration overrides
 └── src/main.c       # Application entry point
 ```
 
-Start in [application/src/main.c](application/src/main.c): replace the
-`lv_demo_widgets()` call in `create_ui()` with your own UI code. The display,
-input devices and LVGL itself are initialized automatically by Zephyr from the
-devicetree before `main()` runs.
+Start in [src/main.c](src/main.c): replace the `lv_demo_widgets()` call in
+`create_ui()` with your own UI code. The display, input devices and LVGL
+itself are initialized automatically by Zephyr from the devicetree before
+`main()` runs.
 
 LVGL is configured through Kconfig (`prj.conf` or `west build -t menuconfig`):
 enable widgets, fonts and features there, and tune
@@ -96,16 +113,16 @@ See the [LVGL on Zephyr documentation](https://lvgl.io/docs/details/integration/
 for details.
 
 You can design UIs visually with the [LVGL Editor](https://lvgl.io/editor) and
-drop the exported code into `application/src/`.
+drop the exported code into `src/`.
 
 ### Adding another board
 
 1. Make sure the board's HAL module is in the `name-allowlist` of
-   [west.yml](west.yml) (module names are in `deps/zephyr/west.yml`), then run
+   [west.yml](west.yml) (module names are in `zephyr/west.yml`), then run
    `west update`.
-2. Optionally add `application/boards/<board>.conf` / `.overlay` for
-   board-specific settings.
-3. Build with `west build -p -b <board> lv_zephyr/application`.
+2. Optionally add `boards/<board>.conf` / `.overlay` for board-specific
+   settings.
+3. Build with `west build -p -b <board>`.
 
 ### Updating Zephyr or LVGL
 

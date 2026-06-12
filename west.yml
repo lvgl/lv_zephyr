@@ -3,10 +3,17 @@
 #
 # West manifest for the LVGL Zephyr starter project.
 #
-# This repository is a Zephyr "workspace application": cloning it and running
-# `west init -l` + `west update` fetches Zephyr and every module needed to
-# build the application for the supported boards. See README.md for the
-# step-by-step instructions.
+# This repository is both the west manifest repository and the application:
+# cloning it and running `west init -l` + `west update` fetches Zephyr and
+# every module needed to build, side by side with this repository:
+#
+#   workspace/
+#   ├── lv_zephyr/    # this repository (the application)
+#   ├── zephyr/       # Zephyr RTOS
+#   ├── modules/      # LVGL and vendor HALs
+#   └── bootloader/   # MCUboot (used by ESP32 targets)
+#
+# See README.md for the step-by-step instructions.
 
 manifest:
   version: 0.13
@@ -20,11 +27,9 @@ manifest:
       remote: zephyrproject-rtos
       revision: v4.4.0
       import:
-        # Keep Zephyr and all modules grouped under deps/ in the workspace.
-        path-prefix: deps
         # Only fetch the modules needed by the supported boards. Add more
         # entries here if you target a board whose HAL is not in this list
-        # (module names are listed in deps/zephyr/west.yml).
+        # (module names are listed in zephyr/west.yml).
         name-allowlist:
           - lvgl
           - cmsis            # required by most Arm-based HALs

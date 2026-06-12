@@ -39,7 +39,7 @@
         "release/v9.3",
         "release/v9.4"
     ],
-    "getStartedInstructions": "1. Install the Zephyr prerequisites, west and the Zephyr SDK: `https://docs.zephyrproject.org/latest/develop/getting_started/index.html`.\n2. From the folder that contains this project run `west init -l lv_zephyr` and `west update`.\n3. Build: `west build -p -b ek_ra8d1 lv_zephyr/application --shield rtkmipilcdb00000be`.\n4. Run `west flash` for flashing and `west debug` for debugging.",
+    "getStartedInstructions": "1. Install the Zephyr prerequisites, west and the Zephyr SDK: `https://docs.zephyrproject.org/latest/develop/getting_started/index.html`.\n2. From the folder that contains this project run `west init -l lv_zephyr` and `west update`.\n3. Enter the project folder: `cd lv_zephyr`.\n4. Build: `west build -p -b ek_ra8d1 --shield rtkmipilcdb00000be`.\n5. Run `west flash` for flashing and `west debug` for debugging.",
     "settings": [
         {
             "type": "dropdown",

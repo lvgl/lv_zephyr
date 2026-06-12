@@ -36,15 +36,16 @@ west update
 cd lv_zephyr
 ```
 
-After `west update` the workspace looks like this — the application and Zephyr
-side by side:
+After `west update` the workspace keeps your code and the auto-downloaded
+dependencies cleanly separated:
 
 ```
 lvgl-zephyr-workspace/
-├── lv_zephyr/    # this repository: your application + west manifest
-├── zephyr/       # Zephyr RTOS
-├── modules/      # LVGL and vendor HALs
-└── bootloader/   # MCUboot (used by ESP32 targets)
+├── lv_zephyr/        # this repository: your application + west manifest
+└── deps/             # auto-downloaded by west — don't edit
+    ├── zephyr/       # Zephyr RTOS
+    ├── modules/      # LVGL and vendor HALs
+    └── bootloader/   # MCUboot (used by ESP32 targets)
 ```
 
 > [!NOTE]
@@ -118,7 +119,7 @@ drop the exported code into `src/`.
 ### Adding another board
 
 1. Make sure the board's HAL module is in the `name-allowlist` of
-   [west.yml](west.yml) (module names are in `zephyr/west.yml`), then run
+   [west.yml](west.yml) (module names are in `deps/zephyr/west.yml`), then run
    `west update`.
 2. Optionally add `boards/<board>.conf` / `.overlay` for board-specific
    settings.

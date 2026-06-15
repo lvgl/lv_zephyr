@@ -3,6 +3,10 @@
 
 mainmenu "LVGL Zephyr starter application"
 
+config APP_INTRO_DURATION_MS
+	int "Intro screen duration in milliseconds"
+	default 5000
+
 config APP_SCREENSHOT
 	bool "Take a screenshot once the UI settles, then exit"
 	depends on ARCH_POSIX

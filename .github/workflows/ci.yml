@@ -68,22 +68,15 @@ jobs:
           west build -p -b native_sim/native/64 --
           -DEXTRA_CONF_FILE=tests/screenshot.conf
 
-      - name: Run and capture screenshot
+      - name: Run screenshot test
         run: >
           SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software
           timeout 60 ./build/zephyr/zephyr.exe
 
-      - name: Compare against reference
-        run: >
-          python3 tests/compare_screenshots.py
-          tests/screenshot-reference.bmp screenshot.bmp screenshot-diff.bmp
-
-      - name: Upload screenshot artifacts
-        if: always()
+      - name: Upload error image on failure
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: screenshot
-          path: |
-            screenshot.bmp
-            screenshot-diff.bmp
+          name: screenshot-error
+          path: tests/screenshot-reference_err.png
           if-no-files-found: ignore

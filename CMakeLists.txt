@@ -14,6 +14,15 @@ target_sources(app PRIVATE
     ${LVGL_DIR}/demos/lv_demos.c
 )
 
+# Screenshot capture — compiled only when CONFIG_APP_SCREENSHOT=y (set via
+# tests/screenshot.conf). The module is fully self-contained: it starts its
+# own thread and requires no calls from main.c.
+target_sources_ifdef(CONFIG_APP_SCREENSHOT app PRIVATE tests/screenshot.c)
+
+# lv_fs_posix.c uses DT_DIR (a GNU/BSD extension). Zephyr sets
+# -D_POSIX_C_SOURCE=200809L which hides it; _GNU_SOURCE restores it.
+zephyr_compile_definitions_ifdef(CONFIG_LV_USE_FS_POSIX _GNU_SOURCE)
+
 target_include_directories(app PRIVATE
     ${LVGL_DIR}/demos/
 )

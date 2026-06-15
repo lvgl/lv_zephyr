@@ -12,22 +12,29 @@
 #include <lv_demos.h>
 #include <stdio.h>
 
-#ifdef CONFIG_APP_SCREENSHOT
-#include "screenshot.h"
-#endif
+#include "intro.h"
 
 #define LOG_LEVEL CONFIG_LOG_DEFAULT_LEVEL
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(app);
 
-static void create_ui(void)
+#define INTRO_DURATION_MS CONFIG_APP_INTRO_DURATION_MS
+
+/* Creates the main application screen and populates it without loading it. */
+static lv_obj_t *create_ui(void)
 {
+	lv_obj_t *scr = lv_obj_create(NULL);
 	/* Replace this demo with your own UI code */
-#if defined(CONFIG_LV_USE_DEMO_WIDGETS)
-	lv_demo_widgets();
-#else
-	LOG_ERR("CONFIG_LV_USE_DEMO_WIDGETS is disabled; no UI demo configured");
-#endif
+	lv_demo_widgets_with_args(&(lv_demo_args_t){ .parent = scr });
+	return scr;
+}
+
+/* Switches to the demo screen stored in timer user_data. */
+static void switch_timer_cb(lv_timer_t *timer)
+{
+	lv_obj_t *demo_scr = lv_timer_get_user_data(timer);
+	lv_timer_delete(timer);
+	lv_screen_load(demo_scr);
 }
 
 int main(void)
@@ -46,7 +53,10 @@ int main(void)
 	 * shell or a rendering workqueue.
 	 */
 	lvgl_lock();
-	create_ui();
+	lv_obj_t *demo_scr = create_ui();
+	lv_obj_t *intro_scr = intro_start();
+	lv_screen_load(intro_scr);
+	lv_timer_create(switch_timer_cb, INTRO_DURATION_MS, demo_scr);
 #ifndef CONFIG_LV_Z_RUN_LVGL_ON_WORKQUEUE
 	lv_timer_handler();
 #endif
@@ -73,12 +83,9 @@ int main(void)
 
 		lvgl_lock();
 		sleep_ms = lv_timer_handler();
-#ifdef CONFIG_APP_SCREENSHOT
-		app_screenshot_poll();
-#endif
 		lvgl_unlock();
 
-		k_msleep(MIN(sleep_ms, INT32_MAX));
+		k_msleep(MIN(sleep_ms, 10));
 #endif
 	}
 

@@ -23,7 +23,11 @@ LOG_MODULE_REGISTER(app);
 static void create_ui(void)
 {
 	/* Replace this demo with your own UI code */
+#if defined(CONFIG_LV_USE_DEMO_WIDGETS)
 	lv_demo_widgets();
+#else
+	LOG_ERR("CONFIG_LV_USE_DEMO_WIDGETS is disabled; no UI demo configured");
+#endif
 }
 
 int main(void)

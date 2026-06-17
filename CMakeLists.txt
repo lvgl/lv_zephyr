@@ -3,6 +3,20 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
+# Per-board defaults: boards/<board>.cmake sets variables (e.g. SHIELD) not already provided.
+# Normalize the raw BOARD spec by stripping @<revision> and replacing / with _ to match the
+# naming convention used for boards/<board>.conf and boards/<board>.overlay.
+string(REGEX REPLACE "@[^/]*" "" _board_norm "${BOARD}")
+string(REPLACE "/" "_" _board_norm "${_board_norm}")
+include("${CMAKE_CURRENT_SOURCE_DIR}/boards/${_board_norm}.cmake" OPTIONAL)
+unset(_board_norm)
+
+# Board overlay loading order:
+#   1. boards/pre-shield-overlays/<board>.overlay — via BOARD_EXTENSION_DIRS, applied before shield overlays
+#   2. shield overlay                              — applied by west (--shield flag)
+#   3. boards/<board>.overlay                      — auto-discovered by Zephyr, applied after shield overlays
+list(APPEND BOARD_EXTENSION_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/boards/pre-shield-overlays)
+
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(lvgl_application)
 

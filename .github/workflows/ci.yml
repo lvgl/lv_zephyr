@@ -23,11 +23,10 @@ jobs:
           - board: native_sim/native/64
           - board: stm32u5g9j_dk2
           - board: ek_ra8d1
-            extra_args: --shield rtkmipilcdb00000be
+          - board: ek_ra8d2/r7ka8d2kflcac/cm85
+          - board: ek_ra6m3
           - board: frdm_mcxn947/mcxn947/cpu0
-            extra_args: --shield lcd_par_s035_8080
           - board: mimxrt1170_evk@B/mimxrt1176/cm7
-            extra_args: --shield rk055hdmipi4ma0
           - board: m5stack_core2/esp32/procpu
             blobs: hal_espressif
     steps:

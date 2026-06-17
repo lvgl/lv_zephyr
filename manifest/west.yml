@@ -64,6 +64,7 @@ manifest:
           - hal_espressif    # M5Stack Core2 (ESP32)
           - hal_nxp          # FRDM-MCXN947, MIMXRT1170-EVK
           - hal_renesas      # EK-RA8D1
+          - segger           # J-Link RTT console
           - hal_stm32        # STM32U5G9J-DK2
           - mbedtls          # required by MCUboot (ESP32 builds)
           - mcuboot          # ESP32 builds boot via MCUboot (sysbuild)

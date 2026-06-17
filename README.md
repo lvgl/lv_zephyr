@@ -42,7 +42,7 @@ everything west downloads goes to the git-ignored `deps/` folder:
 lv_zephyr/            # your clone — the whole workspace lives in here
 ├── CMakeLists.txt    # application build
 ├── prj.conf          # Zephyr + LVGL configuration
-├── boards/           # per-board configuration overrides
+├── boards/           # per-board defaults (.cmake), Kconfig (.conf) and DTS overlays (.overlay)
 ├── src/main.c        # application entry point
 ├── manifest/west.yml # west manifest: pins Zephyr and the modules to fetch
 └── deps/             # auto-downloaded by west — git-ignored, don't edit
@@ -68,14 +68,24 @@ clicks act as touch input, and the Zephyr shell is available in the terminal.
 
 ### Run on a development board
 
-Run these from inside the `lv_zephyr` directory:
+Run these from inside the `lv_zephyr` directory. Where a shield is required it
+is auto-selected by `boards/<board>.cmake`; no `--shield` flag needed.
+
+**Tested:**
+
+| Board | Build command |
+|-------|---------------|
+| [EK-RA8D1](https://www.renesas.com/en/products/microcontrollers-microprocessors/ra-cortex-m-mcus/ek-ra8d1-evaluation-kit-ra8d1-mcu-group) | `west build -p -b ek_ra8d1` |
+| [EK-RA6M3](https://www.renesas.com/en/products/microcontrollers-microprocessors/ra-cortex-m-mcus/ek-ra6m3-evaluation-kit-ra6m3-mcu-group) | `west build -p -b ek_ra6m3` |
+
+**Untested** (configuration present; not hardware-verified):
 
 | Board | Build command |
 |-------|---------------|
 | [STM32U5G9J-DK2](https://www.st.com/en/evaluation-tools/stm32u5g9j-dk2.html) | `west build -p -b stm32u5g9j_dk2` |
-| [EK-RA8D1](https://www.renesas.com/en/products/microcontrollers-microprocessors/ra-cortex-m-mcus/ek-ra8d1-evaluation-kit-ra8d1-mcu-group) | `west build -p -b ek_ra8d1 --shield rtkmipilcdb00000be` |
-| [FRDM-MCXN947](https://www.nxp.com/design/design-center/development-boards-and-designs/FRDM-MCXN947) | `west build -p -b frdm_mcxn947/mcxn947/cpu0 --shield lcd_par_s035_8080` |
-| [MIMXRT1170-EVK](https://www.nxp.com/design/design-center/development-boards-and-designs/MIMXRT1170-EVK) | `west build -p -b mimxrt1170_evk@B/mimxrt1176/cm7 --shield rk055hdmipi4ma0` |
+| [EK-RA8D2](https://www.renesas.com/en/products/microcontrollers-microprocessors/ra-cortex-m-mcus/ek-ra8d2-evaluation-kit-ra8d2-mcu-group) | `west build -p -b ek_ra8d2/r7ka8d2kflcac/cm85` |
+| [FRDM-MCXN947](https://www.nxp.com/design/design-center/development-boards-and-designs/FRDM-MCXN947) | `west build -p -b frdm_mcxn947/mcxn947/cpu0` |
+| [MIMXRT1170-EVK](https://www.nxp.com/design/design-center/development-boards-and-designs/MIMXRT1170-EVK) | `west build -p -b mimxrt1170_evk@B/mimxrt1176/cm7` |
 | [M5Stack Core2](https://shop.m5stack.com/products/m5stack-core2-esp32-iot-development-kit-v1-1) | `west blobs fetch hal_espressif`, then `west build -p -b m5stack_core2/esp32/procpu` |
 
 > [!TIP]
@@ -114,9 +124,40 @@ drop the exported code into `src/`.
 1. Make sure the board's HAL module is in the `name-allowlist` of
    [manifest/west.yml](manifest/west.yml) (module names are in
    `deps/zephyr/west.yml`), then run `west update`.
-2. Optionally add `boards/<board>.conf` / `.overlay` for board-specific
-   settings.
+2. Optionally add `boards/<board>.cmake` / `.conf` / `.overlay` for
+   board-specific settings (see below).
 3. Build with `west build -p -b <board>`.
+
+#### Board overlay files
+
+Four files in `boards/` let you customize a board without touching `deps/`:
+
+| File | When applied | Purpose |
+|------|-------------|---------|
+| `boards/<board>.cmake` | CMake configure | Set CMake variables before Zephyr processes them (e.g. default `SHIELD`) |
+| `boards/<board>.conf` | Always | Board-specific Kconfig (memory sizes, drivers, etc.) |
+| `boards/<board>.overlay` | After shield overlays | Override shield DTS settings, add devices the shield didn't configure |
+| `boards/pre-shield-overlays/<board>.overlay` | **Before** shield overlays | Define DTS nodes that the shield overlay references with `&label` |
+
+The third file exists because Zephyr processes overlay files in a fixed order:
+
+```
+board DTS
+  → pre-shield-overlays/<board>.overlay   (BOARD_EXTENSION_DIRS)
+    → shield overlay                       (--shield flag)
+      → boards/<board>.overlay             (auto-discovered, DTC_OVERLAY_FILE)
+```
+
+A shield overlay that contains `&zephyr_lcdif { ... }` requires the
+`zephyr_lcdif` label to exist *before* the shield is processed. If that label
+isn't defined in the upstream board DTS (as is the case for EK-RA6M3, whose
+Zephyr board support predates GLCDC), you must create it in
+`boards/pre-shield-overlays/` so it is available when the shield runs. The
+regular `boards/<board>.overlay` arrives too late for this purpose.
+
+Most boards won't need a pre-shield overlay — it is only required when adding
+a peripheral that the shield references but the board's upstream DTS doesn't
+define.
 
 ### Choosing the LVGL version
 
@@ -175,4 +216,4 @@ This repository also serves as the template used by the
 [LVGL project creator](https://lvgl.io/tools/project-creator). Projects
 generated by the creator follow the same workflow as above: inside the
 generated project run `west init -l manifest` and `west update`, then build
-with the board-specific command shown in the table.
+with `west build -p -b <your-board>`.

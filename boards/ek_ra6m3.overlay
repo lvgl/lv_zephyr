@@ -1,0 +1,151 @@
+/*
+ * Copyright (c) 2026 LVGL
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Board-level DTC overlay for EK-RA6M3 + RTK7EKA6M3B00001BU LCD shield.
+ * Zephyr auto-discovers boards/<board>.overlay and applies it after shield
+ * overlays, so this file can safely override shield settings and reference
+ * nodes the shield defines (lcd_expansion_rtk7eka6m3b00001bu, etc.).
+ *
+ * Pin assignments:
+ *   P206 (ioport2 pin 6) — DISP_INT  (FT5336 interrupt, input pull-up)
+ *   P603 (ioport6 pin 3) — DISP_BLEN (backlight enable, output)
+ *
+ * GLCDC data/control pins (16-bit RGB565 interface):
+ *   CLK:    P101   TCON0: P102   TCON1: P103   TCON2: P104
+ *   DATA00-07: P106 P107 P600 P601 P602 P610 P609 P608
+ *   DATA08-15: P115 P114 P113 P112 P111 P301 P302 P303
+ *
+ * Touch controller I2C: the FT5336 is on IIC2 (P512/P511), which the board DTS
+ * already configures at 400 kHz.  The shield assumes IIC1, so IIC1 and its
+ * ft5336 child are explicitly disabled; a new ft5336 node lives under IIC2.
+ *
+ * P206 maps to port_irq0 on RA6M3; interrupt slot 87 is assigned here.
+ */
+
+#include <zephyr/dt-bindings/display/panel.h>
+
+&pinctrl {
+	glcdc_default: glcdc_default {
+		group1 {
+			psels = <RA_PSEL(RA_PSEL_GLCDC, 1, 1)>,   /* LCDC_CLK   P101 */
+				<RA_PSEL(RA_PSEL_GLCDC, 1, 2)>,   /* LCDC_TCON0 P102 */
+				<RA_PSEL(RA_PSEL_GLCDC, 1, 3)>,   /* LCDC_TCON1 P103 */
+				<RA_PSEL(RA_PSEL_GLCDC, 1, 4)>,   /* LCDC_TCON2 P104 */
+				<RA_PSEL(RA_PSEL_GLCDC, 1, 6)>,   /* LCDC_DATA00 P106 */
+				<RA_PSEL(RA_PSEL_GLCDC, 1, 7)>,   /* LCDC_DATA01 P107 */
+				<RA_PSEL(RA_PSEL_GLCDC, 6, 0)>,   /* LCDC_DATA02 P600 */
+				<RA_PSEL(RA_PSEL_GLCDC, 6, 1)>,   /* LCDC_DATA03 P601 */
+				<RA_PSEL(RA_PSEL_GLCDC, 6, 2)>,   /* LCDC_DATA04 P602 */
+				<RA_PSEL(RA_PSEL_GLCDC, 6, 10)>,  /* LCDC_DATA05 P610 */
+				<RA_PSEL(RA_PSEL_GLCDC, 6, 9)>,   /* LCDC_DATA06 P609 */
+				<RA_PSEL(RA_PSEL_GLCDC, 6, 8)>,   /* LCDC_DATA07 P608 */
+				<RA_PSEL(RA_PSEL_GLCDC, 1, 15)>,  /* LCDC_DATA08 P115 */
+				<RA_PSEL(RA_PSEL_GLCDC, 1, 14)>,  /* LCDC_DATA09 P114 */
+				<RA_PSEL(RA_PSEL_GLCDC, 1, 13)>,  /* LCDC_DATA10 P113 */
+				<RA_PSEL(RA_PSEL_GLCDC, 1, 12)>,  /* LCDC_DATA11 P112 */
+				<RA_PSEL(RA_PSEL_GLCDC, 1, 11)>,  /* LCDC_DATA12 P111 */
+				<RA_PSEL(RA_PSEL_GLCDC, 3, 1)>,   /* LCDC_DATA13 P301 */
+				<RA_PSEL(RA_PSEL_GLCDC, 3, 2)>,   /* LCDC_DATA14 P302 */
+				<RA_PSEL(RA_PSEL_GLCDC, 3, 3)>;   /* LCDC_DATA15 P303 */
+		};
+	};
+};
+
+&zephyr_lcdif {
+	pinctrl-0 = <&glcdc_default>;
+	pinctrl-names = "default";
+	output-pin-hsync = "TCON_PIN_1";
+	output-pin-vsync = "TCON_PIN_0";
+	output-pin-de = "TCON_PIN_2";
+	/*
+	 * EK-RA6M3 routes only DATA00-DATA15 (16 lines, RGB565).
+	 * Override the shield's RGB888 setting; output format must match
+	 * the physical wiring or the red channel (DATA16-23) is unconnected.
+	 *
+	 * Pixel clock: PLL = 240 MHz, output-clock-divisor = 24
+	 * → 240/24 = 10 MHz → 525×316×60 Hz ≈ 60 fps on 480×272.
+	 */
+	output-pixel-format = <PANEL_PIXEL_FORMAT_RGB_565>;
+	output-clock-divisor = <24>;
+	/*
+	 * Place the internal framebuffer at a 64-byte aligned SRAM address via
+	 * the ext-ram hook.  The GLCDC FLM2 register masks the low 6 address
+	 * bits, so fb_background0 must start on a 64-byte boundary or the
+	 * display wraps horizontally by (addr % 64) / 2 pixels.
+	 * 0x20040400 = SRAM_end(0x20080000) - FB_size(0x3FC00), mod 64 = 0.
+	 * The FRAME_BUFFER_SECTION macro places fb_background0 as the sole item
+	 * in the GLCDC_FB linker section, which starts at 0x20040400.
+	 */
+	ext-ram = <&fb_region>;
+};
+
+&ioport2 {
+	status = "okay";
+};
+
+&ioport5 {
+	status = "okay";
+};
+
+&ioport6 {
+	status = "okay";
+};
+
+&lcd_expansion_rtk7eka6m3b00001bu {
+	#gpio-cells = <2>;
+	gpio-map-mask = <0xffffffff 0xffffffc0>;
+	gpio-map-pass-thru = <0 0x3f>;
+	gpio-map = <38 0 &ioport2 6 0>,  /* DISP_INT  P206 */
+		   <39 0 &ioport6 3 0>;  /* DISP_BLEN P603 */
+};
+
+/* The shield enables IIC1 and places ft5336 there, but on EK-RA6M3 the LCD
+ * expansion connector's I2C lines are on P512/P511 — which is IIC2.
+ * IIC2 is already configured in the board DTS (ek_ra6m3.dts).
+ * Disable IIC1 and its ft5336 child; add a new ft5336 node under IIC2. */
+&iic1 {
+	status = "disabled";
+	#address-cells = <1>;
+	#size-cells = <0>;
+};
+
+&ft5336_rtk7eka6m3b00001bu {
+	status = "disabled";
+};
+
+&iic2 {
+	ft5336_ra6m3: ft5336@38 {
+		compatible = "focaltech,ft5336";
+		reg = <0x38>;
+		int-gpios = <&lcd_expansion_rtk7eka6m3b00001bu 38 GPIO_ACTIVE_HIGH>;
+		swapped-x-y;
+	};
+};
+
+/* P206 (ioport2 pin 6) maps to port_irq0 on RA6M3 (r7fa6m3ax.dtsi:405).
+ * Without this the GPIO driver returns -EWOULDBLOCK and FT5336 fails to init. */
+&port_irq0 {
+	interrupts = <87 1>;
+	status = "okay";
+};
+
+/ {
+	chosen {
+		zephyr,touch = &ft5336_ra6m3;
+	};
+
+	/*
+	 * Named SRAM region for the GLCDC internal framebuffer.
+	 * Address 0x20040400: last 255 KB of the 640 KB SRAM block
+	 * (0x1FFE0000..0x20080000), chosen so the start is 64-byte aligned
+	 * (GLCDC FLM2 register requirement) and leaves ~385 KB for BSS/heap.
+	 * Referenced by zephyr_lcdif ext-ram above; FRAME_BUFFER_SECTION places
+	 * fb_background0 here via Z_GENERIC_SECTION("GLCDC_FB").
+	 */
+	fb_region: fb_region@20040400 {
+		compatible = "zephyr,memory-region";
+		reg = <0x20040400 0x3fc00>;
+		zephyr,memory-region = "GLCDC_FB";
+	};
+};

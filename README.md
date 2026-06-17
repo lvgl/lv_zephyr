@@ -93,6 +93,22 @@ is auto-selected by `boards/<board>.cmake`; no `--shield` flag needed.
 > on your PATH; install it together with the rest of Zephyr's Python
 > dependencies with `west packages pip --install`.
 
+#### Display hardware details
+
+| Board | Interface / Panel | Resolution | Color depth | Memory regions |
+|-------|-------------------|------------|-------------|----------------|
+| EK-RA8D1 | MIPI DSI — ILI9806E<br>RTK-MIPI-LCD-B-00000BE | 480 × 854 | RGB565 | 0x00000000, 64 KB — ITCM<br>0x02000000, 2016 KB — Code flash<br>0x20000000, 64 KB — DTCM<br>0x22000000, 896 KB — SRAM<br>0x27000000, 12 KB — Data flash<br>0x68000000, 64 MB — SDRAM<br>0x90000000, 64 MB — OctoSPI NOR |
+| EK-RA6M3 | GLCDC parallel RGB<br>RTK7EKA6M3B00001BU | 480 × 272 | RGB565† | 0x00000000, 2 MB — Code flash<br>0x1FFE0000, 640 KB — SRAM<br>0x20040400, 255 KB — GLCDC\_FB (SRAM sub-region)<br>0x40100000, 64 KB — Data flash<br>0x60000000, 32 MB — QSPI NOR |
+| STM32U5G9J-DK2 | LTDC parallel RGB<br>(onboard, GT911 touch) | 800 × 480 | RGB565 | 0x08000000, 4 MB — Flash<br>0x20000000, 3008 KB — SRAM<br>0x28000000, 16 KB — SRAM4<br>0xA0000000, 128 MB — PSRAM |
+| EK-RA8D2 | GLCDC parallel RGB<br>RTK-LCD-PAR1S-00001BE | 1024 × 600 | RGB565 | 0x02000000, 768 KB — MRAM (CM85)<br>0x020C0000, 256 KB — MRAM (CM33)<br>0x22000000, 1 MB — SRAM0<br>0x22100000, 640 KB — SRAM1<br>0x68000000, 64 MB — SDRAM |
+| FRDM-MCXN947 | 8080 MIPI DBI — ST7796S<br>LCD-PAR-S035 | 480 × 320 | RGB565 | 0x04000000, 96 KB — SRAMX<br>0x10000000, 2 MB — Flash<br>0x20000000, 320 KB — SRAM0<br>0x20050000, 64 KB — SRAMG<br>0x20060000, 32 KB — SRAMH<br>0x90000000, 8 MB — QSPI NOR |
+| MIMXRT1170-EVK | MIPI DSI — HX8394<br>RK055HDMIPI4MA0 | 720 × 1280 | RGB565 | 0x00000000, 256 KB — ITCM<br>0x20000000, 256 KB — DTCM<br>0x20200000, 256 KB — OCRAM<br>0x20240000, 512 KB — OCRAM1<br>0x202C0000, 512 KB — OCRAM2<br>0x30000000, 64 MB — Flash<br>0x80000000, 64 MB — SDRAM |
+| M5Stack Core2 | SPI — ILI9342C<br>(onboard) | 320 × 240 | RGB565 | 0x00000000, 16 MB — Flash<br>0x3F400000, 4 MB — Flash window<br>0x3F800000, 4 MB — PSRAM window (8 MB physical)<br>0x3FF80000, 8 KB — RTC fast RAM<br>0x3FFAE000, 200 KB — SRAM2<br>0x3FFE0000, 128 KB — SRAM1<br>0x40070000, 192 KB — SRAM0<br>0x50000000, 8 KB — RTC slow RAM |
+
+† The `rtk7eka6m3b00001bu` shield defaults to `LV_COLOR_DEPTH_32`; this project overrides it to RGB565 in `boards/ek_ra6m3.conf`.
+
+Memory regions are sourced from the SoC DTSI files and board DTS. All boards render in RGB565 (`LV_COLOR_DEPTH_16`); the wire format may differ — LTDC (STM32) and GLCDC/DSI (RA8D1, RA8D2) output RGB888 downstream.
+
 Then flash and (optionally) debug:
 
 ```sh

@@ -27,6 +27,7 @@
 
 &pinctrl {
 	glcdc_default: glcdc_default {
+		/* PORT1 and PORT3 data/control pins: CLK, TCON, DATA08-15, DATA00-01 */
 		group1 {
 			psels = <RA_PSEL(RA_PSEL_GLCDC, 1, 1)>,   /* LCDC_CLK   P101 */
 				<RA_PSEL(RA_PSEL_GLCDC, 1, 2)>,   /* LCDC_TCON0 P102 */
@@ -34,12 +35,6 @@
 				<RA_PSEL(RA_PSEL_GLCDC, 1, 4)>,   /* LCDC_TCON2 P104 */
 				<RA_PSEL(RA_PSEL_GLCDC, 1, 6)>,   /* LCDC_DATA00 P106 */
 				<RA_PSEL(RA_PSEL_GLCDC, 1, 7)>,   /* LCDC_DATA01 P107 */
-				<RA_PSEL(RA_PSEL_GLCDC, 6, 0)>,   /* LCDC_DATA02 P600 */
-				<RA_PSEL(RA_PSEL_GLCDC, 6, 1)>,   /* LCDC_DATA03 P601 */
-				<RA_PSEL(RA_PSEL_GLCDC, 6, 2)>,   /* LCDC_DATA04 P602 */
-				<RA_PSEL(RA_PSEL_GLCDC, 6, 10)>,  /* LCDC_DATA05 P610 */
-				<RA_PSEL(RA_PSEL_GLCDC, 6, 9)>,   /* LCDC_DATA06 P609 */
-				<RA_PSEL(RA_PSEL_GLCDC, 6, 8)>,   /* LCDC_DATA07 P608 */
 				<RA_PSEL(RA_PSEL_GLCDC, 1, 15)>,  /* LCDC_DATA08 P115 */
 				<RA_PSEL(RA_PSEL_GLCDC, 1, 14)>,  /* LCDC_DATA09 P114 */
 				<RA_PSEL(RA_PSEL_GLCDC, 1, 13)>,  /* LCDC_DATA10 P113 */
@@ -48,6 +43,17 @@
 				<RA_PSEL(RA_PSEL_GLCDC, 3, 1)>,   /* LCDC_DATA13 P301 */
 				<RA_PSEL(RA_PSEL_GLCDC, 3, 2)>,   /* LCDC_DATA14 P302 */
 				<RA_PSEL(RA_PSEL_GLCDC, 3, 3)>;   /* LCDC_DATA15 P303 */
+			drive-strength = "high";
+		};
+		/* PORT6 data pins: DATA02-07 (blue and green LSBs) */
+		group2 {
+			psels = <RA_PSEL(RA_PSEL_GLCDC, 6, 0)>,   /* LCDC_DATA02 P600 */
+				<RA_PSEL(RA_PSEL_GLCDC, 6, 1)>,   /* LCDC_DATA03 P601 */
+				<RA_PSEL(RA_PSEL_GLCDC, 6, 2)>,   /* LCDC_DATA04 P602 */
+				<RA_PSEL(RA_PSEL_GLCDC, 6, 10)>,  /* LCDC_DATA05 P610 */
+				<RA_PSEL(RA_PSEL_GLCDC, 6, 9)>,   /* LCDC_DATA06 P609 */
+				<RA_PSEL(RA_PSEL_GLCDC, 6, 8)>;   /* LCDC_DATA07 P608 */
+			drive-strength = "high";
 		};
 	};
 };
@@ -63,11 +69,11 @@
 	 * Override the shield's RGB888 setting; output format must match
 	 * the physical wiring or the red channel (DATA16-23) is unconnected.
 	 *
-	 * Pixel clock: PLL = 240 MHz, output-clock-divisor = 24
-	 * → 240/24 = 10 MHz → 525×316×60 Hz ≈ 60 fps on 480×272.
+	 * Pixel clock: PLL = 240 MHz, output-clock-divisor = 32
+	 * → 240/32 = 7.5 MHz → 525×316 ≈ 45 fps on 480×272 (panel spec: 5–12 MHz typ 9 MHz).
 	 */
 	output-pixel-format = <PANEL_PIXEL_FORMAT_RGB_565>;
-	output-clock-divisor = <24>;
+	output-clock-divisor = <32>;
 	/*
 	 * Place the internal framebuffer at a 64-byte aligned SRAM address via
 	 * the ext-ram hook.  The GLCDC FLM2 register masks the low 6 address

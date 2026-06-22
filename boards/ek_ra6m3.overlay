@@ -137,6 +137,18 @@
 };
 
 / {
+	soc {
+		drw: drw@400e4000 {
+			compatible = "renesas,ra-drw";
+			reg = <0x400e4000 0x104>;
+			interrupts = <95 12>;
+			interrupt-names = "drw";
+			status = "okay";
+		};
+	};
+};
+
+/ {
 	chosen {
 		zephyr,touch = &ft5336_ra6m3;
 	};

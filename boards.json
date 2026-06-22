@@ -1,0 +1,107 @@
+[
+  {
+    "board_name": "EK-RA8D1",
+    "horizontal_resolution": "480",
+    "vertical_resolution": "854",
+    "color_depth": "RGB565",
+    "build_command": "west build -p -b ek_ra8d1",
+    "memories": [
+      { "address": "0x00000000", "name": "ITCM",         "size": "64 KB",   "section": "itcm" },
+      { "address": "0x02000000", "name": "Code flash",   "size": "2016 KB", "section": "code_flash" },
+      { "address": "0x20000000", "name": "DTCM",         "size": "64 KB",   "section": "dtcm" },
+      { "address": "0x22000000", "name": "SRAM",         "size": "896 KB",  "section": "sram" },
+      { "address": "0x27000000", "name": "Data flash",   "size": "12 KB",   "section": "data_flash" },
+      { "address": "0x68000000", "name": "SDRAM",        "size": "64 MB",   "section": "sdram" },
+      { "address": "0x90000000", "name": "OctoSPI NOR",  "size": "64 MB",   "section": "octospi_nor" }
+    ]
+  },
+  {
+    "board_name": "EK-RA6M3",
+    "horizontal_resolution": "480",
+    "vertical_resolution": "272",
+    "color_depth": "RGB565",
+    "build_command": "west blobs fetch hal_renesas && west build -p -b ek_ra6m3",
+    "memories": [
+      { "address": "0x00000000", "name": "Code flash",              "size": "2 MB",   "section": "code_flash" },
+      { "address": "0x1FFE0000", "name": "SRAM",                    "size": "640 KB", "section": "sram" },
+      { "address": "0x20040400", "name": "GLCDC_FB (SRAM sub-region)", "size": "255 KB", "section": "glcdc_fb" },
+      { "address": "0x40100000", "name": "Data flash",              "size": "64 KB",  "section": "data_flash" },
+      { "address": "0x60000000", "name": "QSPI NOR",                "size": "32 MB",  "section": "qspi_nor" }
+    ]
+  },
+  {
+    "board_name": "STM32U5G9J-DK2",
+    "horizontal_resolution": "800",
+    "vertical_resolution": "480",
+    "color_depth": "RGB565",
+    "build_command": "west build -p -b stm32u5g9j_dk2",
+    "memories": [
+      { "address": "0x08000000", "name": "Flash", "size": "4 MB",    "section": "flash" },
+      { "address": "0x20000000", "name": "SRAM",  "size": "3008 KB", "section": "sram" },
+      { "address": "0x28000000", "name": "SRAM4", "size": "16 KB",   "section": "sram4" },
+      { "address": "0xA0000000", "name": "PSRAM", "size": "128 MB",  "section": "psram" }
+    ]
+  },
+  {
+    "board_name": "EK-RA8D2",
+    "horizontal_resolution": "1024",
+    "vertical_resolution": "600",
+    "color_depth": "RGB565",
+    "build_command": "west build -p -b ek_ra8d2/r7ka8d2kflcac/cm85",
+    "memories": [
+      { "address": "0x02000000", "name": "MRAM (CM85)", "size": "768 KB", "section": "mram_cm85" },
+      { "address": "0x020C0000", "name": "MRAM (CM33)", "size": "256 KB", "section": "mram_cm33" },
+      { "address": "0x22000000", "name": "SRAM0",       "size": "1 MB",   "section": "sram0" },
+      { "address": "0x22100000", "name": "SRAM1",       "size": "640 KB", "section": "sram1" },
+      { "address": "0x68000000", "name": "SDRAM",       "size": "64 MB",  "section": "sdram" }
+    ]
+  },
+  {
+    "board_name": "FRDM-MCXN947",
+    "horizontal_resolution": "480",
+    "vertical_resolution": "320",
+    "color_depth": "RGB565",
+    "build_command": "west build -p -b frdm_mcxn947/mcxn947/cpu0",
+    "memories": [
+      { "address": "0x04000000", "name": "SRAMX",    "size": "96 KB",  "section": "sramx" },
+      { "address": "0x10000000", "name": "Flash",    "size": "2 MB",   "section": "flash" },
+      { "address": "0x20000000", "name": "SRAM0",    "size": "320 KB", "section": "sram0" },
+      { "address": "0x20050000", "name": "SRAMG",    "size": "64 KB",  "section": "sramg" },
+      { "address": "0x20060000", "name": "SRAMH",    "size": "32 KB",  "section": "sramh" },
+      { "address": "0x90000000", "name": "QSPI NOR", "size": "8 MB",   "section": "qspi_nor" }
+    ]
+  },
+  {
+    "board_name": "MIMXRT1170-EVK",
+    "horizontal_resolution": "720",
+    "vertical_resolution": "1280",
+    "color_depth": "RGB565",
+    "build_command": "west build -p -b mimxrt1170_evk@B/mimxrt1176/cm7",
+    "memories": [
+      { "address": "0x00000000", "name": "ITCM",   "size": "256 KB", "section": "itcm" },
+      { "address": "0x20000000", "name": "DTCM",   "size": "256 KB", "section": "dtcm" },
+      { "address": "0x20200000", "name": "OCRAM",  "size": "256 KB", "section": "ocram" },
+      { "address": "0x20240000", "name": "OCRAM1", "size": "512 KB", "section": "ocram1" },
+      { "address": "0x202C0000", "name": "OCRAM2", "size": "512 KB", "section": "ocram2" },
+      { "address": "0x30000000", "name": "Flash",  "size": "64 MB",  "section": "flash" },
+      { "address": "0x80000000", "name": "SDRAM",  "size": "64 MB",  "section": "sdram" }
+    ]
+  },
+  {
+    "board_name": "M5Stack Core2",
+    "horizontal_resolution": "320",
+    "vertical_resolution": "240",
+    "color_depth": "RGB565",
+    "build_command": "west blobs fetch hal_espressif && west build -p -b m5stack_core2/esp32/procpu",
+    "memories": [
+      { "address": "0x00000000", "name": "Flash",                        "size": "16 MB",  "section": "flash" },
+      { "address": "0x3F400000", "name": "Flash window",                 "size": "4 MB",   "section": "flash_window" },
+      { "address": "0x3F800000", "name": "PSRAM window (8 MB physical)", "size": "4 MB",   "section": "psram_window" },
+      { "address": "0x3FF80000", "name": "RTC fast RAM",                 "size": "8 KB",   "section": "rtc_fast_ram" },
+      { "address": "0x3FFAE000", "name": "SRAM2",                        "size": "200 KB", "section": "sram2" },
+      { "address": "0x3FFE0000", "name": "SRAM1",                        "size": "128 KB", "section": "sram1" },
+      { "address": "0x40070000", "name": "SRAM0",                        "size": "192 KB", "section": "sram0" },
+      { "address": "0x50000000", "name": "RTC slow RAM",                 "size": "8 KB",   "section": "rtc_slow_ram" }
+    ]
+  }
+]

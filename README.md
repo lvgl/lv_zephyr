@@ -12,15 +12,22 @@ so you do **not** need a pre-existing Zephyr installation or any extra tooling.
 
 ## Prerequisites
 
-Follow steps 1–4 of the official
+You'll need a working Zephyr development environment. Follow the official
 [Zephyr Getting Started Guide](https://docs.zephyrproject.org/latest/develop/getting_started/index.html)
-to install:
+and complete these sections:
 
-1. The host dependencies (CMake, Python, devicetree compiler)
-2. `west`, Zephyr's meta-tool (`pip install west`)
-3. The [Zephyr SDK](https://docs.zephyrproject.org/latest/develop/toolchains/zephyr_sdk.html) (toolchains)
+1. **Select and Update OS** and **Install dependencies** — the host tools
+   (CMake, Python, and the devicetree compiler).
+2. **Get Zephyr and install Python dependencies** — a virtual environment,
+   `west`, the Zephyr CMake package, and Zephyr's Python dependencies.
+3. **Install the Zephyr SDK** — the
+   [compiler toolchains](https://docs.zephyrproject.org/latest/develop/toolchains/zephyr_sdk.html).
 
-To run the simulator on your PC you also need SDL2
+In section 2 you can skip sub-step 4 ("Get the Zephyr source code"): this
+repository is already its own west workspace, so `west init`/`west update` are
+covered by the [Quick start](#quick-start) below. Running it anyway is harmless.
+
+To run the simulator on your PC, you also need SDL2
 (`sudo apt install libsdl2-dev` on Ubuntu/Debian).
 
 ## Quick start

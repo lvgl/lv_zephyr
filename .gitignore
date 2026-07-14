@@ -11,7 +11,7 @@ build-*/
 /screenshot.bmp
 /screenshot-diff.bmp
 /diff.bmp
-tests/screenshot-reference_err.png
+tests/*_err.png
 
 # IDE / tooling
 .vscode/

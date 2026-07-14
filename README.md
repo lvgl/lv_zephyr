@@ -124,6 +124,66 @@ release was validated with, so versions far away from the default may need
 glue adjustments. When bumping the Zephyr revision, update the default LVGL
 pin to match the `lvgl` entry in `deps/zephyr/west.yml`.
 
+## Customizing the LVGL build
+
+Most of the time you configure LVGL through Kconfig (`prj.conf` or
+`west build -t menuconfig`) — that is the normal, first-choice way to turn
+features, fonts and options on or off.
+
+Occasionally you need to reach past Kconfig into how the LVGL module is
+*compiled* — for example when running a custom LVGL revision whose file layout
+differs from the one Zephyr bundles (a source it adds or removes), or to force
+a single config value regardless of Kconfig. You can do this **without editing
+Zephyr or LVGL** using CMake's built-in `CMAKE_PROJECT_INCLUDE`: point it at a
+small CMake file and Zephyr runs it once the build's targets exist.
+
+```sh
+west build -p -b native_sim/native/64 -- -DCMAKE_PROJECT_INCLUDE=$PWD/zephyr-with-custom-lvgl.cmake
+```
+
+This repository ships a ready-to-edit
+[`zephyr-with-custom-lvgl.cmake`](zephyr-with-custom-lvgl.cmake) with the
+patterns below. The file runs with LVGL's build targets available, so it can add
+or remove sources, or override a configuration value. The two relevant targets
+are `modules__lvgl` (the static library that compiles LVGL's own sources) and
+`app` (where the demos and your UI code are compiled).
+
+**Override a config value (clean — no source edits).** LVGL resolves every
+option with an `#ifndef LV_X` guard, so a `-D` define supplied here is seen
+first and *wins* over the Kconfig value. Apply it to whichever target compiles
+the code that reads the macro. For example, to force the default theme to dark
+mode (read both by the LVGL library and by the widgets demo in `app`):
+
+```cmake
+# zephyr-with-custom-lvgl.cmake
+if(NOT TARGET modules__lvgl)
+  return()   # also fires for Zephyr's internal project(); act only when the target exists
+endif()
+
+foreach(tgt modules__lvgl app)
+  if(TARGET ${tgt})
+    target_compile_definitions(${tgt} PRIVATE LV_THEME_DEFAULT_DARK=1)
+  endif()
+endforeach()
+```
+
+**Add or remove a source** (e.g. to match a custom LVGL revision):
+
+```cmake
+# add a file your revision introduced
+target_sources(modules__lvgl PRIVATE ${ZEPHYR_LVGL_MODULE_DIR}/src/misc/lv_my_new_file.c)
+
+# remove a file your revision deleted
+get_target_property(srcs modules__lvgl SOURCES)
+list(FILTER srcs EXCLUDE REGEX "widgets/win/lv_win\\.c$")
+set_target_properties(modules__lvgl PROPERTIES SOURCES "${srcs}")
+```
+
+> `CMAKE_PROJECT_INCLUDE` is a CMake cache/`-D` argument, not an environment
+> variable — use `-- -DCMAKE_PROJECT_INCLUDE=$MY_PATH` and let the shell expand
+> your variable. Because it globs/edits the build at configure time, run a clean
+> build (`west build -p`) after changing which files LVGL compiles.
+
 ## Updating Zephyr
 
 The Zephyr release is pinned by the `revision` of the `zephyr` project in

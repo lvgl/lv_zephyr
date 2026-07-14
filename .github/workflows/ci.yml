@@ -48,7 +48,7 @@ jobs:
         run: west build -p -b ${{ matrix.board }} ${{ matrix.extra_args }}
 
   screenshot-test:
-    name: Screenshot test (native_sim)
+    name: Screenshot tests (native_sim)
     runs-on: ubuntu-24.04
     container: ghcr.io/zephyrproject-rtos/ci:v0.29.1
     env:
@@ -72,10 +72,35 @@ jobs:
           SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software
           timeout 60 ./build/zephyr/zephyr.exe
 
-      - name: Upload error image on failure
+      # Verify the custom-LVGL build hook (CMAKE_PROJECT_INCLUDE) actually
+      # applies: build with tests/screenshot-dark.cmake injected (it forces the
+      # dark theme, mirroring the documented zephyr-with-custom-lvgl.cmake) and
+      # compare against a dedicated dark reference image. Matching a dedicated
+      # reference — not merely differing from the default — is what makes this
+      # catch a hook that silently stops applying (the output would then match
+      # the default theme and mismatch the dark reference).
+      - name: Build with the custom-LVGL cmake hook injected
+        run: >
+          west build -p -b native_sim/native/64 --
+          -DEXTRA_CONF_FILE=tests/screenshot.conf
+          -DCMAKE_PROJECT_INCLUDE=$PWD/tests/screenshot-dark.cmake
+
+      # The reference image is chosen at run time via the env var — independent
+      # of the hook — so that if the hook ever silently stops applying, the
+      # still-default output mismatches the dark reference and the test fails,
+      # instead of both reverting together.
+      - name: Verify the custom-LVGL customization applied
+        run: >
+          SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software
+          LV_Z_SCREENSHOT_REFERENCE=tests/screenshot-reference-dark
+          timeout 60 ./build/zephyr/zephyr.exe
+
+      - name: Upload error images on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: screenshot-error
-          path: tests/screenshot-reference_err.png
+          path: |
+            tests/screenshot-reference_err.png
+            tests/screenshot-reference-dark_err.png
           if-no-files-found: ignore

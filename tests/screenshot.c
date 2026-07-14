@@ -25,11 +25,31 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define SCREENSHOT_BASE "tests/screenshot-reference"
+/* Reference image path, without the .png extension. Defaults to the standard
+ * reference; overridable at run time via the LV_Z_SCREENSHOT_REFERENCE env var
+ * so a customized build (e.g. one exercising zephyr-with-custom-lvgl.cmake) can
+ * be checked against its own reference. This is test-only behaviour, hence a
+ * run-time env var rather than an application Kconfig option. */
+#define SCREENSHOT_BASE_DEFAULT "tests/screenshot-reference"
+#define SCREENSHOT_BASE_ENV     "LV_Z_SCREENSHOT_REFERENCE"
 
 #define MIN_UPTIME_MS     (CONFIG_APP_INTRO_DURATION_MS + 500)
 #define MAX_UPTIME_MS     (CONFIG_APP_INTRO_DURATION_MS + 8000)
 #define SETTLE_ITERATIONS 50
+
+/* Reference base path (without extension): the LV_Z_SCREENSHOT_REFERENCE env
+ * var if set, otherwise the default. The returned pointer is valid for the
+ * lifetime of the process. */
+static const char *screenshot_reference_base(void)
+{
+	const char *base = getenv(SCREENSHOT_BASE_ENV);
+
+	if (base == NULL || base[0] == '\0') {
+		return SCREENSHOT_BASE_DEFAULT;
+	}
+
+	return base;
+}
 
 static void screenshot_thread(void *a, void *b, void *c)
 {
@@ -50,18 +70,22 @@ static void screenshot_thread(void *a, void *b, void *c)
 		k_msleep(16);
 	}
 
+	const char *base = screenshot_reference_base();
+	char ref_png[256];
+	snprintf(ref_png, sizeof(ref_png), "%s.png", base);
+
 	lvgl_lock();
-	lv_test_screenshot_result_t res = lv_test_screenshot_compare(SCREENSHOT_BASE ".png");
+	lv_test_screenshot_result_t res = lv_test_screenshot_compare(ref_png);
 	lvgl_unlock();
 
 	if (res == LV_TEST_SCREENSHOT_RESULT_NO_REFERENCE_IMAGE) {
-		fprintf(stderr, "Reference image not found: " SCREENSHOT_BASE ".png\n");
+		fprintf(stderr, "Reference image not found: %s\n", ref_png);
 		exit(1);
 	} else if (res != LV_TEST_SCREENSHOT_RESULT_PASSED) {
 		fprintf(stderr,
-			"Screenshot mismatch. Diff written to " SCREENSHOT_BASE "_err.png\n"
+			"Screenshot mismatch. Diff written to %s_err.png\n"
 			"To update the reference:\n"
-			"  mv " SCREENSHOT_BASE "_err.png " SCREENSHOT_BASE ".png\n");
+			"  mv %s_err.png %s.png\n", base, base, base);
 		exit(1);
 	}
 

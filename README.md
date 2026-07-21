@@ -40,7 +40,18 @@ cd lv_zephyr
 # and download Zephyr + modules into deps/
 west init -l manifest
 west update
+west patch apply   # re-apply local fixes to deps/ (see manifest/zephyr/patches.yml)
 ```
+
+> [!NOTE]
+> Run `west patch apply` after every `west update`. Because `deps/` is
+> git-ignored and re-downloaded by west, fixes we carry on top of upstream
+> Zephyr/modules live as patches in
+> [manifest/zephyr/patches.yml](manifest/zephyr/patches.yml) and must be
+> re-applied. Currently this fixes a Renesas DRW (Dave2D) driver compile
+> error under GCC 14 that otherwise breaks all three EK-RA board builds.
+> `west patch apply` is not idempotent — if a patch is already applied it
+> errors out; run `west patch clean` first (or re-run `west update`) to reset.
 
 Everything stays inside your clone: the code you edit is tracked by git, and
 everything west downloads goes to the git-ignored `deps/` folder:

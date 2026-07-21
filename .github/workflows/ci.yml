@@ -25,6 +25,7 @@ jobs:
           - board: ek_ra8d1
           - board: ek_ra8d2/r7ka8d2kflcac/cm85
           - board: ek_ra6m3
+            blobs: hal_renesas
           - board: frdm_mcxn947/mcxn947/cpu0
           - board: mimxrt1170_evk@B/mimxrt1176/cm7
           - board: m5stack_core2/esp32/procpu
@@ -37,11 +38,15 @@ jobs:
         run: |
           west init -l manifest
           west update -o=--depth=1 -n
+          west patch apply
 
-      - name: Install esptool and fetch blobs
+      - name: Fetch binary blobs
         if: matrix.blobs
         run: |
           PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install "esptool>=5.0.2"
+          if [ "${{ matrix.blobs }}" = "hal_espressif" ]; then
+            PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install "esptool>=5.0.2"
+          fi
           west blobs fetch ${{ matrix.blobs }}
 
       - name: Build
@@ -61,6 +66,7 @@ jobs:
         run: |
           west init -l manifest
           west update -o=--depth=1 -n
+          west patch apply
 
       - name: Build with screenshot capture enabled
         run: >

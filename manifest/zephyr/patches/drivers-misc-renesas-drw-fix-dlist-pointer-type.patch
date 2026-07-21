@@ -1,0 +1,34 @@
+drivers: misc: renesas_drw: fix pp_dlist_indirect_start pointer type
+
+The DRW indirect display-list handling declared pp_dlist_indirect_start
+as a double pointer (uint32_t **), but the FSP field
+d1_device_flex::pp_dlist_indirect_start is a single pointer
+(volatile uint32_t *). Dereferencing the double pointer yields a
+uint32_t * that is then assigned to the 32-bit R_DRW->DLISTSTART
+register, triggering -Wint-conversion. Under GCC 14 (Zephyr SDK 1.0)
+-Wint-conversion is an error by default, so the driver fails to compile
+for any Dave2D-accelerated RA board (e.g. ek_ra6m3).
+
+Match FSP's own r_drw_base.c: use a single uint32_t *, dereference it to
+the uint32_t display-list address, and compare against 0.
+
+Upstreamable to zephyrproject-rtos/zephyr.
+
+diff --git a/drivers/misc/renesas_drw/renesas_ra_drw.c b/drivers/misc/renesas_drw/renesas_ra_drw.c
+index 0960316d7d8..7644062c71e 100644
+--- a/drivers/misc/renesas_drw/renesas_ra_drw.c
++++ b/drivers/misc/renesas_drw/renesas_ra_drw.c
+@@ -85,10 +85,10 @@ void drw_zephyr_irq_handler(const struct device *dev)
+ 		d1_device_flex *p_d1_handle = (d1_device_flex *)R_FSP_IsrContextGet(irq);
+ 
+ 		if (p_d1_handle != NULL) {
+-			uint32_t **pp_dlist_indirect_start =
+-				(uint32_t **)p_d1_handle->pp_dlist_indirect_start;
++			uint32_t *pp_dlist_indirect_start =
++				(uint32_t *)p_d1_handle->pp_dlist_indirect_start;
+ 			if (p_d1_handle->dlist_indirect_enable &&
+-			    *pp_dlist_indirect_start != NULL) {
++			    *pp_dlist_indirect_start != 0) {
+ 				R_DRW->DLISTSTART = *pp_dlist_indirect_start;
+ 				p_d1_handle->pp_dlist_indirect_start++;
+ 			} else {

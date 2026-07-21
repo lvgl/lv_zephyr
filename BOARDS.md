@@ -47,7 +47,8 @@ Memory regions are sourced from the SoC DTSI files and board DTS. All boards ren
 
 1. Make sure the board's HAL module is in the `name-allowlist` of
    [manifest/west.yml](manifest/west.yml) (module names are in
-   `deps/zephyr/west.yml`), then run `west update`.
+   `deps/zephyr/west.yml`), then run `west update` (followed by
+   `west patch apply` — see [manifest/zephyr/patches.yml](manifest/zephyr/patches.yml)).
 2. Optionally add `boards/<board>.cmake` / `.conf` / `.overlay` for
    board-specific settings (see below).
 3. Build with `west build -p -b <board>`.

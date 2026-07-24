@@ -1,0 +1,39 @@
+/*
+ * Copyright (c) 2026 LVGL
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Board extension overlay for EK-RA6M3 + RTK7EKA6M3B00001BU LCD shield.
+ * Applied via BOARD_EXTENSION_DIRS *before* the shield overlay so that the
+ * 'zephyr_lcdif' alias exists when rtk7eka6m3b00001bu.overlay references it.
+ *
+ * lcdclk: not present in r7fa6m3ax.dtsi; added as a pclkblock child so
+ * "clocks = <&lcdclk MSTPC 4>" in the GLCDC node resolves.
+ * MSTPCRC bit 4 is the GLCDC module-stop bit for RA6M3
+ * (BSP_MSTP_REG_FSP_IP_GLCDC / BSP_MSTP_BIT_FSP_IP_GLCDC(0) in FSP).
+ *
+ * Interrupt slot 71 reserved for GLCDC line-detect.
+ */
+
+&pclkblock {
+	lcdclk: lcdclk {
+		compatible = "renesas,ra-cgc-pclk";
+		div = <2>;
+		#clock-cells = <2>;
+		status = "okay";
+	};
+};
+
+/ {
+	soc {
+		lcdif: display-controller@400e0000 {
+			compatible = "renesas,ra-glcdc";
+			reg = <0x400e0000 0x1454>;
+			clocks = <&lcdclk MSTPC 4>;
+			interrupts = <71 1>;
+			interrupt-names = "line";
+			status = "disabled";
+		};
+	};
+};
+
+zephyr_lcdif: &lcdif {};

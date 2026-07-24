@@ -1,0 +1,112 @@
+# Copyright (c) 2026 LVGL
+# SPDX-License-Identifier: Apache-2.0
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (${{ matrix.board }})
+    runs-on: ubuntu-24.04
+    container: ghcr.io/zephyrproject-rtos/ci:v0.29.1
+    env:
+      CMAKE_PREFIX_PATH: /opt/toolchains
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - board: native_sim/native/64
+          - board: stm32u5g9j_dk2
+          - board: ek_ra8d1
+          - board: ek_ra8d2/r7ka8d2kflcac/cm85
+          - board: ek_ra6m3
+            blobs: hal_renesas
+          - board: frdm_mcxn947/mcxn947/cpu0
+          - board: mimxrt1170_evk@B/mimxrt1176/cm7
+          - board: m5stack_core2/esp32/procpu
+            blobs: hal_espressif
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize west workspace
+        run: |
+          west init -l manifest
+          west update -o=--depth=1 -n
+          west patch apply
+
+      - name: Fetch binary blobs
+        if: matrix.blobs
+        run: |
+          PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install "esptool>=5.0.2"
+          if [ "${{ matrix.blobs }}" = "hal_espressif" ]; then
+            PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install "esptool>=5.0.2"
+          fi
+          west blobs fetch ${{ matrix.blobs }}
+
+      - name: Build
+        run: west build -p -b ${{ matrix.board }} ${{ matrix.extra_args }}
+
+  screenshot-test:
+    name: Screenshot tests (native_sim)
+    runs-on: ubuntu-24.04
+    container: ghcr.io/zephyrproject-rtos/ci:v0.29.1
+    env:
+      CMAKE_PREFIX_PATH: /opt/toolchains
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize west workspace
+        run: |
+          west init -l manifest
+          west update -o=--depth=1 -n
+          west patch apply
+
+      - name: Build with screenshot capture enabled
+        run: >
+          west build -p -b native_sim/native/64 --
+          -DEXTRA_CONF_FILE=tests/screenshot.conf
+
+      - name: Run screenshot test
+        run: >
+          SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software
+          timeout 60 ./build/zephyr/zephyr.exe
+
+      # Verify the custom-LVGL build hook (CMAKE_PROJECT_INCLUDE) actually
+      # applies: build with tests/screenshot-dark.cmake injected (it forces the
+      # dark theme, mirroring the documented zephyr-with-custom-lvgl.cmake) and
+      # compare against a dedicated dark reference image. Matching a dedicated
+      # reference — not merely differing from the default — is what makes this
+      # catch a hook that silently stops applying (the output would then match
+      # the default theme and mismatch the dark reference).
+      - name: Build with the custom-LVGL cmake hook injected
+        run: >
+          west build -p -b native_sim/native/64 --
+          -DEXTRA_CONF_FILE=tests/screenshot.conf
+          -DCMAKE_PROJECT_INCLUDE=$PWD/tests/screenshot-dark.cmake
+
+      # The reference image is chosen at run time via the env var — independent
+      # of the hook — so that if the hook ever silently stops applying, the
+      # still-default output mismatches the dark reference and the test fails,
+      # instead of both reverting together.
+      - name: Verify the custom-LVGL customization applied
+        run: >
+          SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software
+          LV_Z_SCREENSHOT_REFERENCE=tests/screenshot-reference-dark
+          timeout 60 ./build/zephyr/zephyr.exe
+
+      - name: Upload error images on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-error
+          path: |
+            tests/screenshot-reference_err.png
+            tests/screenshot-reference-dark_err.png
+          if-no-files-found: ignore

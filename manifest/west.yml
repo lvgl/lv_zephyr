@@ -1,0 +1,73 @@
+# Copyright (c) 2026 LVGL
+# SPDX-License-Identifier: Apache-2.0
+#
+# West manifest for the LVGL Zephyr starter project.
+#
+# This file lives in the manifest/ subdirectory on purpose: running
+# `west init -l manifest` from the repository root makes the repository
+# itself the west workspace, so everything west downloads stays inside
+# the repository (git-ignored), cleanly separated from the code you edit:
+#
+#   lv_zephyr/            # your clone — the whole workspace lives in here
+#   ├── src/, boards/, prj.conf, CMakeLists.txt   # your application
+#   ├── manifest/west.yml # this file
+#   └── deps/             # auto-downloaded by west — git-ignored
+#       ├── zephyr/       # Zephyr RTOS
+#       ├── modules/      # LVGL and vendor HALs
+#       └── bootloader/   # MCUboot (used by ESP32 targets)
+#
+# See README.md for the step-by-step instructions.
+
+manifest:
+  version: 0.13
+
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+
+  projects:
+    # LVGL — checked out as a standalone dependency directly from the
+    # upstream LVGL repository instead of through Zephyr's manifest, so the
+    # version is yours to choose.
+    #
+    # By default `revision` points to the exact commit the pinned Zephyr
+    # release bundles (v9.5.0 for Zephyr v4.4.0 — see the `lvgl` entry in
+    # deps/zephyr/west.yml; keep the two in sync when bumping Zephyr).
+    #
+    # To use your own LVGL version instead, replace `revision` with any tag,
+    # branch or commit SHA from https://github.com/lvgl/lvgl, e.g.:
+    #
+    #   revision: v9.4.0     # a release tag
+    #   revision: master     # the development branch
+    #   revision: 263ae5e13dec1e525109aed556cec1bbdfdecd5a   # an exact commit
+    #
+    # Note: Zephyr's LVGL glue code (deps/zephyr/modules/lvgl) is written
+    # against the bundled LVGL version, so versions far away from the
+    # default may need glue adjustments.
+    - name: lvgl
+      url: https://github.com/lvgl/lvgl
+      revision: 85aa60d18b3d5e5588d7b247abf90198f07c8a63  # == v9.5.0, bundled with Zephyr v4.4.0
+      path: deps/modules/lib/gui/lvgl
+
+    - name: zephyr
+      remote: zephyrproject-rtos
+      revision: v4.4.0
+      import:
+        # Keep Zephyr and all modules grouped under deps/ in the workspace.
+        path-prefix: deps
+        # Only fetch the modules needed by the supported boards. Add more
+        # entries here if you target a board whose HAL is not in this list
+        # (module names are listed in deps/zephyr/west.yml).
+        name-allowlist:
+          - cmsis            # required by most Arm-based HALs
+          - cmsis_6
+          - hal_espressif    # M5Stack Core2 (ESP32)
+          - hal_nxp          # FRDM-MCXN947, MIMXRT1170-EVK
+          - hal_renesas      # EK-RA8D1
+          - segger           # J-Link RTT console
+          - hal_stm32        # STM32U5G9J-DK2
+          - mbedtls          # required by MCUboot (ESP32 builds)
+          - mcuboot          # ESP32 builds boot via MCUboot (sysbuild)
+
+  self:
+    path: lv_zephyr

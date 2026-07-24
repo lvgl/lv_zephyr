@@ -1,0 +1,10 @@
+# Copyright (c) 2026 LVGL
+# SPDX-License-Identifier: Apache-2.0
+
+mainmenu "LVGL Zephyr starter application"
+
+config APP_INTRO_DURATION_MS
+	int "Intro screen duration in milliseconds"
+	default 5000
+
+source "Kconfig.zephyr"

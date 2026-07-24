@@ -1,0 +1,28 @@
+# Copyright (c) 2026 LVGL
+# SPDX-License-Identifier: Apache-2.0
+#
+# Patches applied on top of the west-managed dependencies in deps/.
+# Because deps/ is git-ignored and re-downloaded by `west update`, any fix to
+# a dependency must live here as a patch and be re-applied afterwards:
+#
+#   west update
+#   west patch apply
+#
+# See BOARDS.md and the Zephyr `west patch` documentation for details.
+
+patches:
+  - path: drivers-misc-renesas-drw-fix-dlist-pointer-type.patch
+    sha256sum: 38442f16de7682f9cd6671b74612cf3f5d303d6c5438a41890f0e7dec7b8eedc
+    # Path relative to the workspace topdir (Zephyr lives under deps/, so the
+    # bare module name "zephyr" does not resolve here).
+    module: deps/zephyr
+    author: Vandra-Meyer Akos
+    email: akos@lvgl.io
+    date: 2026-07-21
+    upstreamable: true
+    apply-command: git apply
+    comments: |
+      DRW driver assigned a uint32_t * to the 32-bit R_DRW->DLISTSTART
+      register (double-pointer declaration), which is a -Wint-conversion
+      error under GCC 14. Blocks every Dave2D-accelerated RA board build
+      (e.g. ek_ra6m3) with the current Zephyr SDK.

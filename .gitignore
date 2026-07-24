@@ -1,0 +1,19 @@
+# West workspace state and downloaded dependencies (see manifest/west.yml)
+.west/
+deps/
+
+# Build output
+build/
+build_*/
+build-*/
+
+# Screenshot test output (the reference lives in tests/)
+/screenshot.bmp
+/screenshot-diff.bmp
+/diff.bmp
+tests/*_err.png
+
+# IDE / tooling
+.vscode/
+.idea/
+__pycache__/

@@ -1,4 +1,4 @@
-# LVGL on Zephyr RTOS — starter project
+# LVGL on Zephyr RTOS
 
 [![CI](https://github.com/lvgl/lv_zephyr/actions/workflows/ci.yml/badge.svg)](https://github.com/lvgl/lv_zephyr/actions/workflows/ci.yml)
 
